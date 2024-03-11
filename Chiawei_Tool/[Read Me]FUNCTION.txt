@@ -1,0 +1,71 @@
+//----------------------------------------------------[C]--------------------------------------------------------------//
+gcc -o FUNCTION_demo .\include\myfunction.c FUNCTION.c & FUNCTION_demo.exe
+
+FUNCTION.exe
+
+//----------------------------------------------------[1_PEC]--------------------------------------------------------------//
+[FUNCTION.exe_PEC]: input I2C cmd:B0 00 00 {or:B0-00-00}
+
+string = 0XB0,int = 176
+string = 0X00,int = 0
+string = 0X00,int = 0
+PEC = 0XEA
+
+//----------------------------------------------------[2_DIR_READ_ONLY]---------------------------------------------------------//
+[FUNCTION.exe_DIR_READONLY]: DIR
+.
+..
+testbootloader_Timecount.txt
+testlog_autorecovery.txt
+testlog_default.txt
+testlog_query.txt
+請按任意鍵繼續 . . .
+
+//----------------------------------------------------[3_REPORT_DATA_Catch output_list]-----------------------------------------//
+[FUNCTION.exe_output_list]: //------------------------------------------------//
+[FUNCTION.exe_output_list]: //case List:
+[FUNCTION.exe_output_list]: //( 1 ) Default
+[FUNCTION.exe_output_list]: //( 2 ) Query
+[FUNCTION.exe_output_list]: //( 3 ) Time_count
+[FUNCTION.exe_output_list]: //( 4 ) AutoRecovery
+[FUNCTION.exe_output_list]: //------------------------------------------------//
+[FUNCTION.exe_output_list]: input report case:2
+.\OUTPUT\output_list\testlog_query_1_Query_ReportData.txt
+
+.\OUTPUT\output_list\testlog_query_2_Query_ReportData.txt
+
+.\OUTPUT\output_list\testlog_query_3_Query_ReportData.txt
+
+//----------------------------------------------------[4_Linear11_to_DEC]------------------------------------------------------//
+[FUNCTION.exe_Linear11]: input Linear11:F076
+
+Dec = 29.500000
+
+//----------------------------------------------------[5_Linear16_to_DEC]------------------------------------------------------//
+[FUNCTION.exe_Linear16]: input Linear16:1B00
+
+Dec = 13.500000
+
+//----------------------------------------------------[6_Direct_to_DEC]--------------------------------------------------------//
+[FUNCTION.exe_Direct]: input first Direct:53 65 0B 4E 0C 00 {or:53-65-0B-4E-0C-00}
+[FUNCTION.exe_Direct]: input second Direct:1F 39 0C FB 0C 00 {or:1F-39-0C-FB-0C-00}
+
+first Direct = 53 65 0B 4E 0C 00,
+second Direct = 1F 39 0C FB 0C 00,
+Dec = 123.000000
+
+//----------------------------------------------------[7_ASCII_Hex_to_Text]--------------------------------------------------------//
+[FUNCTION.exe_ASCII]: input ASCII_Hex:52 38 30 30 41 56 32 31 50 20 20 20 {or:523830304156323150202020}
+
+The ASCII_Text = R800AV21P
+
+//----------------------------------------------------[8_CRC16]--------------------------------------------------------------//
+[FUNCTION.exe_CRC16]: input Modbus cmd:D0 02 F1 F2 F3 F4 {or:D0-02-F1-F2-F3-F4}
+
+string = 0XD0,int = 208
+string = 0X02,int = 2
+string = 0XF1,int = 241
+string = 0XF2,int = 242
+string = 0XF3,int = 243
+string = 0XF4,int = 244
+CRC16 = 0X33BC

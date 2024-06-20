@@ -4,6 +4,7 @@ gcc -o REPORT_DATA_Catch_demo .\include\myfunction.c REPORT_DATA_Catch.c & REPOR
 gcc -o REPORT_DATA_Catch_demo .\include\myfunction.c REPORT_DATA_Catch.c & REPORT_DATA_Catch_demo.exe Time_count .\READ_ONLY\testbootloader_Timecount.txt 1.111
 gcc -o REPORT_DATA_Catch_demo .\include\myfunction.c REPORT_DATA_Catch.c & REPORT_DATA_Catch_demo.exe AutoRecovery .\READ_ONLY\testlog_autorecovery.txt
 gcc -o REPORT_DATA_Catch_demo .\include\myfunction.c REPORT_DATA_Catch.c & REPORT_DATA_Catch_demo.exe TravelBusLog .\READ_ONLY\testlog_travelbus.TXT
+gcc -o REPORT_DATA_Catch_demo .\include\myfunction.c REPORT_DATA_Catch.c & REPORT_DATA_Catch_demo.exe PMBUS_Bootloader .\READ_ONLY\testISP.bin 128
 gcc -o REPORT_DATA_Catch_demo .\include\myfunction.c REPORT_DATA_Catch.c & REPORT_DATA_Catch_demo.exe test test
 
 REPORT_DATA_Catch.exe Default .\READ_ONLY\testlog_default.txt
@@ -11,6 +12,7 @@ REPORT_DATA_Catch.exe Query .\READ_ONLY\testlog_query.txt
 REPORT_DATA_Catch.exe Time_count .\READ_ONLY\testbootloader_Timecount.txt 1.111
 REPORT_DATA_Catch.exe AutoRecovery .\READ_ONLY\testlog_autorecovery.txt
 REPORT_DATA_Catch.exe TravelBusLog .\READ_ONLY\testlog_travelbus.TXT
+REPORT_DATA_Catch.exe PMBUS_Bootloader .\READ_ONLY\testISP.bin 128
 
 //----------------------------------------------------[1_Default]--------------------------------------------------------------//
 REPORT_DATA_Catch.exe Default .\READ_ONLY\testlog_default.txt
@@ -32,3 +34,7 @@ REPORT_DATA_Catch.exe AutoRecovery .\READ_ONLY\testlog_autorecovery.txt
 //----------------------------------------------------[5_TravelBusLog]-----------------------------------------------------------//
 REPORT_DATA_Catch.exe TravelBusLog .\READ_ONLY\testlog_travelbus.TXT
 .\READ_ONLY\testlog_travelbus_Convert_to_ChartLog.txt
+
+//----------------------------------------------------[6_PMBUS_Bootloader]-----------------------------------------------------------//
+REPORT_DATA_Catch.exe PMBUS_Bootloader .\READ_ONLY\testISP.bin 128
+.\OUTPUT\testISP_PMBUS_Bootloader.txt

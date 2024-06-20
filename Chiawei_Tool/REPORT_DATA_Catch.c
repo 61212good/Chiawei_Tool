@@ -27,6 +27,10 @@ int readyear;//讀到的整數西元年
 int readmonth;//讀到的整數月份
 int readday;//讀到的整數日期
 char addtime_microsec_str[20];//加上的微秒(字串型態)
+int bin_byte_cnt;//bin檔的一行byte數
+int PMBUS_byte_cnt;//PMBUS的一行byte數
+int bin_rows;//PMBUS一行等於bin檔幾行數
+int bin_rows_cnt;//寫到PMBUS行中第幾行bin檔的標記
 
 char *input_case;//輸入參數
 char *input_filename;//文件地址參數
@@ -38,6 +42,7 @@ FILE *fptr_write_query_readvalue;//開啟輸出Query文件(寫)
 FILE *fptr_write_Time;//開啟輸出Time_count文件(寫)
 FILE *fptr_write_autorecovery;//開啟輸出autorecovery文件(寫)
 FILE *fptr_write_TravelBusLog_Convert;//開啟輸出TravelBusLog文件(寫)
+FILE *fptr_write_PMBUS_Bootloader;//開啟輸出PMBUS_Bootloader文件(寫)
 
 char *output_filename_Default_ReportData;//輸出Case Default的檔名
 char *output_filename_Default_7E_ReportData;//輸出Case Default 7E的檔名
@@ -45,6 +50,7 @@ char *output_filename_Query_ReportData;//輸出Case Query的檔名
 char *output_filename_Timecount_ReportData;//輸出Time_count的檔名
 char *output_filename_AutoRecovery_ReportData;//輸出AutoRecovery的檔名
 char *output_filename_TravelBusLog_Convert;//輸出TravelBusLog轉換的檔名
+char *output_filename_PMBUS_Bootloader;//輸出PMBUS_Bootloader轉換的檔名
 
 char strcat_default_data[1000];//初始化字串
 char strcat_time_count[50];//初始化字串
@@ -142,6 +148,8 @@ int main(int argc, char *argv[]){
 	output_filename_AutoRecovery_ReportData = str_replace(output_filename_AutoRecovery_ReportData,"READ_ONLY","OUTPUT");//輸出AutoRecovery檔名
 	output_filename_TravelBusLog_Convert = str_replace(input_filename,".txt","_Convert_to_ChartLog.txt");//輸出TravelBusLog轉換檔名
 	output_filename_TravelBusLog_Convert = str_replace(output_filename_TravelBusLog_Convert,".TXT","_Convert_to_ChartLog.txt");//輸出TravelBusLog轉換檔名
+	output_filename_PMBUS_Bootloader = str_replace(input_filename,".bin","_PMBUS_Bootloader.txt");//輸出PMBUS_Bootloader檔名
+	output_filename_PMBUS_Bootloader = str_replace(output_filename_PMBUS_Bootloader,"READ_ONLY","OUTPUT");//輸出PMBUS_Bootloader檔名
 
 	fptr_read = fopen(input_filename,"r");//開啟文件(讀)
 
@@ -689,6 +697,66 @@ int main(int argc, char *argv[]){
 		}
 
 		fclose(fptr_read);
+	}else if(strncmp("PMBUS_Bootloader", input_case, 16) == 0){//判斷輸入參數PMBUS_Bootloader=========================================================
+		if(fptr_read == NULL){//判斷文件是否打開失敗
+			puts("Fail to open file!");
+			exit(0);
+		}else{
+
+			if(input_val_1 == NULL){//判斷是否輸入參數字串
+				printf("Please enter 'input_val_1'\n");
+				exit(0);
+			}
+
+			PMBUS_byte_cnt = atoi(input_val_1);//字串轉成整數;//PMBUS的一行byte數
+
+			fgets_count = 0;//讀到第幾行的標記
+			bin_rows_cnt = 0;//寫到PMBUS行中第幾行bin檔的標記
+			fptr_write_PMBUS_Bootloader = fopen(output_filename_PMBUS_Bootloader,"w");//開啟輸出PMBUS_Bootloader文件(寫)
+			while(fgets(readstr, Nlen, fptr_read) != NULL){//讀取每一行
+
+				after_replace_log = str_replace(readstr,"\n","\0");//若一行最後為換行，則取代成空白
+
+				if(fgets_count == 0){//bin檔第一行判斷byte數
+					bin_byte_cnt = strlen(after_replace_log) / 2;//bin檔的一行byte數
+					bin_rows = PMBUS_byte_cnt / bin_byte_cnt;//PMBUS一行等於bin檔幾行數
+				}
+
+				if(bin_rows_cnt == 0){//PMBUS行中第一行bin
+					fprintf(fptr_write_PMBUS_Bootloader,"1,Write			,S,B0,W,D7,%X,",PMBUS_byte_cnt);//寫輸出PMBUS_Bootloader文件
+				}
+
+				for (split_log_count = 0; split_log_count < strlen(after_replace_log); split_log_count++) {//讀取bin檔一行每個字元
+					if(split_log_count % 2 == 0){//讀取奇數字元
+						fprintf(fptr_write_PMBUS_Bootloader,"%c",after_replace_log[split_log_count]);//寫輸出PMBUS_Bootloader文件
+					}else if(split_log_count % 2 == 1){//讀取偶數字元
+						fprintf(fptr_write_PMBUS_Bootloader,"%c,",after_replace_log[split_log_count]);//寫輸出PMBUS_Bootloader文件
+					}
+				}
+
+				bin_rows_cnt++;//寫到PMBUS行中第幾行bin檔的標記
+
+				if(bin_rows_cnt == bin_rows){//PMBUS行中最後一行bin
+					bin_rows_cnt = 0;//寫到PMBUS行中第幾行bin檔的標記
+					fprintf(fptr_write_PMBUS_Bootloader,"P\n");//寫輸出PMBUS_Bootloader文件
+				}
+
+				// fprintf(fptr_write_PMBUS_Bootloader,"%s",after_replace_log);//寫輸出PMBUS_Bootloader文件
+				// bin_rows_cnt++;//寫到PMBUS行中第幾行bin檔的標記
+
+				// if(bin_rows_cnt == bin_rows){//PMBUS行中最後一行bin
+				// 	bin_rows_cnt = 0;//寫到PMBUS行中第幾行bin檔的標記
+				// 	fprintf(fptr_write_PMBUS_Bootloader,"\n");//寫輸出PMBUS_Bootloader文件
+				// }
+
+				fgets_count++;//讀到第幾行的標記
+			}
+			fclose(fptr_write_PMBUS_Bootloader);//關閉輸出Query文件
+
+			printf("%s\n", output_filename_PMBUS_Bootloader);
+		}
+
+		fclose(fptr_read);
 	}else if(strncmp("test", input_case, 4) == 0){//判斷輸入參數test=========================================================
 		char* test_Linear16 = "1B00";
 		printf("test_Linear16:%s\nLinear16_to_DEC:%s\n\n",test_Linear16,Linear16_to_DEC(test_Linear16));
@@ -1102,30 +1170,55 @@ int main(int argc, char *argv[]){
 	
 		// fclose(print_txt);
 
-		//Linear11toDec--------------------------------------//
-		FILE *print_txt;
-		FILE *read_txt;
-		char *filename_print_txt;
-		char *input_filename;
+		// //Linear11toDec--------------------------------------//
+		// FILE *print_txt;
+		// FILE *read_txt;
+		// char *filename_print_txt;
+		// char *input_filename;
 
-		input_filename = "./READ_ONLY/test_Linear11toDec.txt";
-		filename_print_txt = "Linear11toDec.txt";
+		// input_filename = "./READ_ONLY/test_Linear11toDec.txt";
+		// filename_print_txt = "Linear11toDec.txt";
 
-		read_txt = fopen(input_filename,"r");//開啟文件(讀)
-		if(read_txt == NULL){//判斷文件是否打開失敗
-			puts("Fail to open file!");
-			exit(0);
-		}
+		// read_txt = fopen(input_filename,"r");//開啟文件(讀)
+		// if(read_txt == NULL){//判斷文件是否打開失敗
+		// 	puts("Fail to open file!");
+		// 	exit(0);
+		// }
 
-		fgets_count = 0;
-		print_txt = fopen(filename_print_txt,"w");
-		while(fgets(readstr, Nlen, read_txt) != NULL){//讀取每一行
-			fprintf(print_txt,"%s\n",Linear11_to_DEC(readstr));//計算Linear11轉十進制並輸出
-			fgets_count++;
-		}
+		// fgets_count = 0;
+		// print_txt = fopen(filename_print_txt,"w");
+		// while(fgets(readstr, Nlen, read_txt) != NULL){//讀取每一行
+		// 	fprintf(print_txt,"%s\n",Linear11_to_DEC(readstr));//計算Linear11轉十進制並輸出
+		// 	fgets_count++;
+		// }
 
-		fclose(print_txt);
-		fclose(read_txt);
+		// fclose(print_txt);
+		// fclose(read_txt);
+
+		// //Linear16toDec--------------------------------------//
+		// FILE *print_txt;
+		// FILE *read_txt;
+		// char *filename_print_txt;
+		// char *input_filename;
+
+		// input_filename = "./READ_ONLY/test_Linear16toDec.txt";
+		// filename_print_txt = "Linear16toDec.txt";
+
+		// read_txt = fopen(input_filename,"r");//開啟文件(讀)
+		// if(read_txt == NULL){//判斷文件是否打開失敗
+		// 	puts("Fail to open file!");
+		// 	exit(0);
+		// }
+
+		// fgets_count = 0;
+		// print_txt = fopen(filename_print_txt,"w");
+		// while(fgets(readstr, Nlen, read_txt) != NULL){//讀取每一行
+		// 	fprintf(print_txt,"%s\n",Linear16_to_DEC(readstr));//計算Linear16轉十進制並輸出
+		// 	fgets_count++;
+		// }
+
+		// fclose(print_txt);
+		// fclose(read_txt);
 
 	}else{
 		puts("Fail to switch_case!");
